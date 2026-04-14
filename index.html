@@ -13,21 +13,16 @@
   --bg:#0b1020;
   --panel:rgba(17,24,39,.82);
   --card:#121a2d;
-  --card2:#0f172a;
   --line:rgba(255,255,255,.08);
   --text:#e5e7eb;
   --muted:#94a3b8;
   --accent:#38bdf8;
-  --accent2:#22c55e;
 }
 *{box-sizing:border-box}
 body{
   margin:0;
   font-family:'Plus Jakarta Sans',sans-serif;
-  background:
-    radial-gradient(circle at top left, rgba(56,189,248,.16), transparent 28%),
-    radial-gradient(circle at top right, rgba(34,197,94,.12), transparent 24%),
-    linear-gradient(180deg,#08101f 0%, #0b1020 100%);
+  background:linear-gradient(180deg,#08101f 0%, #0b1020 100%);
   color:var(--text);
   min-height:100vh;
 }
@@ -52,7 +47,6 @@ header{
   align-items:center;
   gap:10px;
   font-weight:800;
-  letter-spacing:.8px;
 }
 .brand-badge{
   width:38px;
@@ -62,12 +56,8 @@ header{
   place-items:center;
   background:linear-gradient(135deg,var(--accent),#8b5cf6);
   color:#fff;
-  box-shadow:0 12px 30px rgba(56,189,248,.18);
 }
-.actions{
-  display:flex;
-  gap:8px;
-}
+.actions{display:flex;gap:8px}
 .icon-btn{
   border:1px solid var(--line);
   background:rgba(255,255,255,.04);
@@ -79,9 +69,7 @@ header{
   place-items:center;
   cursor:pointer;
 }
-.search-wrap{
-  position:relative;
-}
+.search-wrap{position:relative}
 .search{
   width:100%;
   padding:14px 16px 14px 46px;
@@ -109,9 +97,7 @@ header{
   gap:6px;
   flex-wrap:wrap;
 }
-.container{
-  padding:18px;
-}
+.container{padding:18px}
 .stats{
   display:grid;
   grid-template-columns:repeat(3,1fr);
@@ -167,9 +153,7 @@ header{
   border:1px solid var(--line);
   backdrop-filter:blur(10px);
 }
-.meta{
-  padding:10px 10px 12px;
-}
+.meta{padding:10px 10px 12px}
 .name{
   font-size:12px;
   font-weight:700;
@@ -227,7 +211,7 @@ header{
 
 <div class="container">
   <div class="stats">
-    <div class="stat"><div class="k">Current Folder</div><div class="v" id="folderCount">0</div></div>
+    <div class="stat"><div class="k">Current Folder</div><div class="v" id="folderCount">images</div></div>
     <div class="stat"><div class="k">Files</div><div class="v" id="fileCount">0</div></div>
     <div class="stat"><div class="k">Folders</div><div class="v" id="subCount">0</div></div>
   </div>
@@ -286,7 +270,11 @@ function render(list = null){
           <div class="name">${item.name}</div>
           <div class="sub">Open folder</div>
         </div>`;
-      div.onclick = () => { currentPath = item.path; document.getElementById("searchInput").value = ""; render(); };
+      div.onclick = () => {
+        currentPath = item.path;
+        document.getElementById("searchInput").value = "";
+        render();
+      };
     } else {
       const ext = item.name.split('.').pop().toLowerCase();
       div.innerHTML = `
