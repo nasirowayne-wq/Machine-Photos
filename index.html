@@ -89,8 +89,6 @@
         }
         .multi-select-btn.active span { color: #000; }
 
-        /* --- ADAPTIVE ARCHITECTURE FOR GRID INTERFACES --- */
-        /* List Layout for Folders (Fits multiple folders cleanly on one screen) */
         .grid.folder-view {
             display: flex;
             flex-direction: column;
@@ -98,7 +96,6 @@
             padding: 5px 15px;
         }
 
-        /* UPDATED: 2-Column Grid Layout for Images */
         .grid.photo-view {
             display: grid; 
             grid-template-columns: repeat(2, 1fr); 
@@ -117,7 +114,6 @@
         }
         .card:active { transform: scale(0.97); }
 
-        /* Compact Horizontal Design for Folder Lists */
         .card-folder {
             flex-direction: row !important;
             justify-content: flex-start !important;
@@ -134,7 +130,6 @@
             font-weight: 700 !important;
         }
 
-        /* Grid Block Box Design for Images */
         .card-file {
             padding: 10px; 
             display: flex; 
@@ -168,7 +163,6 @@
         }
         .img-box img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* SQUARE CHECKBOX FOR PHOTOS */
         .square-checkbox {
             position: absolute;
             bottom: 8px;
@@ -203,7 +197,6 @@
             display: block !important;
         }
 
-        /* Floating dynamic share tray */
         .selection-tray {
             position: fixed;
             bottom: calc(var(--safe-bottom) + 70px);
@@ -237,7 +230,6 @@
             gap: 8px;
         }
 
-        /* Lightbox Layout Overlays */
         .overlay { 
             position: fixed; 
             inset: 0; 
@@ -310,7 +302,6 @@
         <div class="grid" id="gallery"></div>
     </main>
 
-    <!-- Floating Dynamic Share Tray -->
     <div id="selection-tray" class="selection-tray">
         <div class="tray-txt" id="tray-count">0 Items Selected</div>
         <button class="tray-btn" onclick="shareSelectedImages()">
@@ -371,9 +362,7 @@
         function handleCardClick(item, cardItem) {
             if (item.type === 'folder') {
                 if(isSelectionMode) return;
-                currentPath = item.path; 
-                render(); 
-                document.getElementById('main-content').scrollTop = 0;
+                navigateToFolder(item.path);
                 return;
             }
 
@@ -390,6 +379,32 @@
                 openLB(item.path, item.name);
             }
         }
+
+        // NEW: Handles state changes and pushes history stack to keep mobile hardware buttons happy
+        function navigateToFolder(path, isPushState = true) {
+            currentPath = path;
+            if (isPushState) {
+                history.pushState({ path: path, type: 'folder' }, '', '#' + path);
+            }
+            render();
+            document.getElementById('main-content').scrollTop = 0;
+        }
+
+        // NEW: Capture browser/mobile back and forward clicks safely
+        window.addEventListener('popstate', (event) => {
+            // Priority 1: Clear lightboxes if active
+            if (document.getElementById('lightbox').style.display === 'flex') {
+                document.getElementById('lightbox').style.display = 'none';
+                return;
+            }
+            
+            // Priority 2: Extract path structure configuration from history states
+            if (event.state && event.state.path) {
+                navigateToFolder(event.state.path, false);
+            } else {
+                navigateToFolder("images", false);
+            }
+        });
 
         function updateTray() {
             const tray = document.getElementById('selection-tray');
@@ -425,7 +440,7 @@
                 grid.className = "grid folder-view";
                 toggleArea.style.display = 'none'; 
             } else {
-                grid.className = "grid photo-view"; // Automatically shifts down into the updated 2-column rule layer
+                grid.className = "grid photo-view";
                 toggleArea.style.display = hasFiles ? 'block' : 'none';
             }
 
@@ -456,7 +471,6 @@
             if(window.lucide) lucide.createIcons();
         }
 
-        // Search engine filter logic mapping
         function doSearch() {
             const val = document.getElementById('q').value.toLowerCase();
             if(val.length > 1) {
@@ -465,6 +479,9 @@
         }
 
         function openLB(src, name) {
+            // Push an entry state so the phone back hardware key exits the photo layout, not the web app page
+            history.pushState({ type: 'lightbox' }, '', window.location.hash);
+            
             const lb = document.getElementById('lightbox');
             document.getElementById('lb-img').src = src;
             document.getElementById('lb-title').innerText = name.toUpperCase();
@@ -478,7 +495,11 @@
             };
         }
 
-        function closeLB() { document.getElementById('lightbox').style.display = 'none'; }
+        function closeLB() { 
+            if (document.getElementById('lightbox').style.display === 'flex') {
+                history.back(); // Triggers global window popstate observer routine safely
+            }
+        }
 
         async function shareActiveImg() {
             const imgPath = document.getElementById('lb-img').src;
@@ -519,15 +540,21 @@
             }
         }
 
-        function goHome() { currentPath = "images"; render(); }
+        function goHome() { navigateToFolder("images"); }
+        
         function goBack() {
-            if(document.getElementById('lightbox').style.display === 'flex') { closeLB(); return; }
+            if(document.getElementById('lightbox').style.display === 'flex') { 
+                closeLB(); 
+                return; 
+            }
             if(currentPath !== "images") {
-                currentPath = currentPath.split('/').slice(0,-1).join('/') || "images";
-                render();
+                const targetPath = currentPath.split('/').slice(0,-1).join('/') || "images";
+                navigateToFolder(targetPath);
             }
         }
 
+        // Set initial historical state entry point block
+        history.replaceState({ path: "images", type: 'folder' }, '', window.location.pathname);
         render();
     </script>
 </body>
