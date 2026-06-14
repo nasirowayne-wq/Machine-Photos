@@ -48,10 +48,10 @@
         .header-btn {
             background: var(--accent-dim);
             border: 1px solid rgba(251, 197, 49, 0.3);
-            padding: 6px 12px;
+            padding: 6px 14px;
             border-radius: 8px;
             color: var(--accent);
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 800;
             text-transform: uppercase;
         }
@@ -94,26 +94,42 @@
         .card:active { transform: scale(0.96); }
         .card i { color: var(--accent); margin-bottom: 4px; }
 
-        /* Multi-selection states */
+        /* --- VISIBLE SELECTION TICK MARKS --- */
+        .tick-box {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            background: rgba(0, 0, 0, 0.4);
+            display: none; /* Only shown during selection mode */
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        
+        /* Show the tick boxes on files when selection mode is active */
+        body.select-mode-active .card-file .tick-box {
+            display: flex;
+        }
+
+        /* Styling for when an item is selected */
         .card.selected {
             border-color: var(--accent);
             background: rgba(251, 197, 49, 0.04);
         }
-        .select-badge {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            width: 16px;
-            height: 16px;
-            border-radius: 50px;
+        
+        .card.selected .tick-box {
             background: var(--accent);
-            color: #000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 5;
+            border-color: var(--accent);
         }
-        .card.selected .select-badge { display: flex; }
+
+        .card.selected .tick-box i {
+            display: block !important;
+        }
 
         .img-box { 
             width: 100%; 
@@ -139,7 +155,7 @@
             white-space: nowrap;
         }
 
-        /* Floating dynamic share engine tray */
+        /* Floating multi-share dynamic bar */
         .selection-tray {
             position: fixed;
             bottom: calc(var(--safe-bottom) + 70px);
@@ -173,7 +189,7 @@
             gap: 8px;
         }
 
-        /* Lightbox Overlay */
+        /* Lightbox overlays */
         .overlay { 
             position: fixed; 
             inset: 0; 
@@ -239,7 +255,7 @@
         <div class="grid" id="gallery"></div>
     </main>
 
-    <!-- Dynamic Selection Tray -->
+    <!-- Floating Dynamic Share Tray -->
     <div id="selection-tray" class="selection-tray">
         <div class="tray-txt" id="tray-count">0 Items Selected</div>
         <button class="tray-btn" onclick="shareSelectedImages()">
@@ -287,16 +303,18 @@
             if(isSelectionMode) {
                 btn.innerText = "Cancel";
                 btn.classList.add('active');
+                document.body.classList.add('select-mode-active');
             } else {
                 btn.innerText = "Select";
                 btn.classList.remove('active');
+                document.body.classList.remove('select-mode-active');
                 clearSelections();
             }
         }
 
         function handleCardClick(item, cardItem) {
             if (item.type === 'folder') {
-                if(isSelectionMode) return; // Disallow selecting folders
+                if(isSelectionMode) return;
                 currentPath = item.path; 
                 render(); 
                 document.getElementById('main-content').scrollTop = 0;
@@ -342,10 +360,11 @@
 
             list.forEach(item => {
                 const card = document.createElement('div');
-                card.className = "card";
+                card.className = "card " + (item.type === 'folder' ? 'card-folder' : 'card-file');
                 if(selectedFiles.has(item.path)) card.classList.add('selected');
 
-                let innerHtml = '<div class="select-badge"><i data-lucide="check" size="10" style="color:#000;margin:0;"></i></div>';
+                // Structural template with clean tick configurations embedded inside
+                let innerHtml = '<div class="tick-box"><i data-lucide="check" size="12" style="color:#000;margin:0;display:none;"></i></div>';
 
                 if(item.type === 'folder') {
                     innerHtml += '<i data-lucide="' + getIcon(item.name) + '" size="22"></i>' +
@@ -357,7 +376,7 @@
 
                 card.innerHTML = innerHtml;
 
-                // Long press interaction context to activate select mode automatically
+                // Alternate triggers to activate selection state through a standard long tap
                 let pressTimer;
                 card.addEventListener('touchstart', () => {
                     pressTimer = setTimeout(() => {
