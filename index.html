@@ -335,6 +335,7 @@
         let currentPath = "images";
         let selectedFiles = new Set();
         let isSelectionMode = false;
+        let isLightboxOpen = false;
 
         function getIcon(name) {
             const n = name.toLowerCase();
@@ -362,7 +363,8 @@
         function handleCardClick(item, cardItem) {
             if (item.type === 'folder') {
                 if(isSelectionMode) return;
-                navigateToFolder(item.path);
+                // Push standard folder path to hash location mapping tracker
+                window.location.hash = encodeURIComponent(item.path);
                 return;
             }
 
@@ -380,36 +382,39 @@
             }
         }
 
-        // NEW: Handles state changes and pushes history stack to keep mobile hardware buttons happy
-        function navigateToFolder(path, isPushState = true) {
-            currentPath = path;
-            if (isPushState) {
-                history.pushState({ path: path, type: 'folder' }, '', '#' + path);
+        // RE-ENGINEERED: Robust Hash Listening Router to handle all mobile hardware back events
+        function parseAndRouteLocation() {
+            const hashValue = window.location.hash.replace('#', '');
+            
+            // Check state conditions for full-screen viewports
+            if (hashValue.endsWith('__lightbox')) {
+                isLightboxOpen = true;
+                return; // Let openLB manage rendering mechanics
+            }
+            
+            // Fallback: Lightbox closed implicitly if the anchor suffix vanished
+            if (isLightboxOpen && !hashValue.endsWith('__lightbox')) {
+                isLightboxOpen = false;
+                document.getElementById('lightbox').style.display = 'none';
+            }
+
+            const cleanPath = decodeURIComponent(hashValue.replace('__lightbox', ''));
+            
+            if (!cleanPath || cleanPath === "images") {
+                currentPath = "images";
+            } else {
+                currentPath = cleanPath;
             }
             render();
             document.getElementById('main-content').scrollTop = 0;
         }
 
-        // NEW: Capture browser/mobile back and forward clicks safely
-        window.addEventListener('popstate', (event) => {
-            // Priority 1: Clear lightboxes if active
-            if (document.getElementById('lightbox').style.display === 'flex') {
-                document.getElementById('lightbox').style.display = 'none';
-                return;
-            }
-            
-            // Priority 2: Extract path structure configuration from history states
-            if (event.state && event.state.path) {
-                navigateToFolder(event.state.path, false);
-            } else {
-                navigateToFolder("images", false);
-            }
-        });
+        // Attach event listener immediately to catch back touches
+        window.addEventListener('hashchange', parseAndRouteLocation);
 
         function updateTray() {
             const tray = document.getElementById('selection-tray');
             const countLabel = document.getElementById('tray-count');
-            
             if (selectedFiles.size > 0) {
                 countLabel.innerText = selectedFiles.size + " File" + (selectedFiles.size > 1 ? "s" : "") + " Selected";
                 tray.style.display = 'flex';
@@ -479,8 +484,9 @@
         }
 
         function openLB(src, name) {
-            // Push an entry state so the phone back hardware key exits the photo layout, not the web app page
-            history.pushState({ type: 'lightbox' }, '', window.location.hash);
+            isLightboxOpen = true;
+            // Append lightbox state indicator suffix cleanly onto current hash chain link 
+            window.location.hash = encodeURIComponent(currentPath) + '__lightbox';
             
             const lb = document.getElementById('lightbox');
             document.getElementById('lb-img').src = src;
@@ -495,9 +501,9 @@
             };
         }
 
-        function closeLB() { 
-            if (document.getElementById('lightbox').style.display === 'flex') {
-                history.back(); // Triggers global window popstate observer routine safely
+        function closeLB() {
+            if (window.location.hash.includes('__lightbox')) {
+                history.back(); // Shifts hash backwards safely closing view context layers
             }
         }
 
@@ -516,7 +522,6 @@
         async function shareSelectedImages() {
             if(selectedFiles.size === 0) return;
             const filesArray = [];
-            
             try {
                 for (let path of selectedFiles) {
                     const response = await fetch(encodeURI(path));
@@ -525,7 +530,6 @@
                     const file = new File([blob], filename, { type: blob.type });
                     filesArray.push(file);
                 }
-
                 if (navigator.canShare && navigator.canShare({ files: filesArray })) {
                     await navigator.share({
                         files: filesArray,
@@ -535,27 +539,24 @@
                 } else {
                     alert("Your browser or device context doesn't support sharing multiple files directly.");
                 }
-            } catch (err) {
-                console.error("Sharing failed: ", err);
-            }
+            } catch (err) { console.error("Sharing failed: ", err); }
         }
 
-        function goHome() { navigateToFolder("images"); }
+        function goHome() { window.location.hash = "images"; }
         
         function goBack() {
-            if(document.getElementById('lightbox').style.display === 'flex') { 
-                closeLB(); 
-                return; 
+            if (isLightboxOpen) {
+                closeLB();
+                return;
             }
-            if(currentPath !== "images") {
-                const targetPath = currentPath.split('/').slice(0,-1).join('/') || "images";
-                navigateToFolder(targetPath);
+            if (currentPath !== "images") {
+                const targetPath = currentPath.split('/').slice(0, -1).join('/') || "images";
+                window.location.hash = encodeURIComponent(targetPath);
             }
         }
 
-        // Set initial historical state entry point block
-        history.replaceState({ path: "images", type: 'folder' }, '', window.location.pathname);
-        render();
+        // Initialize state engine route configuration on start
+        parseAndRouteLocation();
     </script>
 </body>
 </html>
