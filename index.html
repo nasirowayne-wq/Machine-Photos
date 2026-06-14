@@ -56,27 +56,29 @@
             outline: none; 
         }
 
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 15px; }
+        /* 3-Column compact layout for balanced thumbnails */
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 12px; }
         
-        /* Matching .dash-card style from test4.html */
+        /* Adjusted padding and sizing so items don't stretch */
         .card { 
             background: var(--card); 
             border: 1px solid var(--border); 
-            border-radius: 20px; 
-            padding: 20px; 
+            border-radius: 14px; 
+            padding: 8px; 
             display: flex; 
             flex-direction: column; 
-            align-items: flex-start; 
-            gap: 10px;
+            align-items: center; 
+            justify-content: center;
+            min-height: 105px;
             transition: 0.2s;
         }
         .card:active { transform: scale(0.96); background: #1e222d; }
-        .card i { color: var(--accent); }
+        .card i { color: var(--accent); margin-bottom: 4px; }
 
         .img-box { 
             width: 100%; 
             aspect-ratio: 1/1; 
-            border-radius: 12px; 
+            border-radius: 8px; 
             overflow: hidden; 
             background: #000; 
             border: 1px solid var(--border);
@@ -84,12 +86,14 @@
         .img-box img { width: 100%; height: 100%; object-fit: cover; }
         
         .label { 
-            font-size: 11px; 
-            font-weight: 800; 
-            line-height: 1.3; 
+            font-size: 10px; 
+            font-weight: 700; 
+            line-height: 1.2; 
             text-transform: uppercase;
             color: #fff;
             width: 100%;
+            text-align: center;
+            margin-top: 6px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -114,8 +118,8 @@
             background: var(--card); 
         }
         
-        .scroll-area { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        #lb-img { max-width: 100%; max-height: 70%; border-radius: 20px; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .scroll-area { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #lb-img { max-width: 100%; max-height: 65%; border-radius: 20px; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
 
         .action-bar { display: flex; gap: 10px; margin-top: 25px; }
         .act-btn { 
@@ -200,7 +204,7 @@
                 const card = document.createElement('div');
                 card.className = "card";
                 if(item.type === 'folder') {
-                    card.innerHTML = '<i data-lucide="' + getIcon(item.name) + '" size="24"></i>' +
+                    card.innerHTML = '<i data-lucide="' + getIcon(item.name) + '" size="22"></i>' +
                                      '<div class="label">' + item.name + '</div>';
                     card.onclick = () => { currentPath = item.path; render(); document.getElementById('main-content').scrollTop = 0; };
                 } else {
