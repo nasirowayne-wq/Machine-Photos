@@ -45,24 +45,9 @@
         .logo { font-weight: 800; font-size: 22px; }
         .logo span { color: var(--accent); }
 
-        .header-btn {
-            background: var(--accent-dim);
-            border: 1px solid rgba(251, 197, 49, 0.3);
-            padding: 6px 14px;
-            border-radius: 8px;
-            color: var(--accent);
-            font-size: 12px;
-            font-weight: 800;
-            text-transform: uppercase;
-        }
-        .header-btn.active {
-            background: var(--accent);
-            color: #000;
-        }
-
         main { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 120px; }
         
-        .search-container { padding: 15px; }
+        .search-container { padding: 15px 15px 5px 15px; }
         .search-bar { 
             width: 100%;
             background: rgba(0,0,0,0.3); 
@@ -73,6 +58,37 @@
             font-size: 14px; 
             outline: none; 
         }
+
+        /* --- THE NEW PROMINENT IN-LINE TOGGLE BUTTON --- */
+        .action-toggle-container {
+            padding: 10px 15px 15px;
+            display: none; /* Controlled dynamically by JavaScript */
+        }
+        .multi-select-btn {
+            width: 100%;
+            background: #11141d;
+            border: 1px solid rgba(251, 197, 49, 0.25);
+            padding: 14px;
+            border-radius: 14px;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+        }
+        .multi-select-btn span { color: var(--accent); }
+        .multi-select-btn.active {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+        }
+        .multi-select-btn.active span { color: #000; }
 
         .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 12px; }
         
@@ -105,7 +121,7 @@
         }
         .img-box img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* --- SQUARE CHECKBOX INSIDE THUMBNAIL --- */
+        /* SQUARE CHECKBOX DESIGN */
         .square-checkbox {
             position: absolute;
             bottom: 6px;
@@ -115,7 +131,7 @@
             border-radius: 4px;
             border: 2px solid rgba(255, 255, 255, 0.6);
             background: rgba(0, 0, 0, 0.6);
-            display: none; /* Hidden until select mode is activated */
+            display: none; 
             align-items: center;
             justify-content: center;
             z-index: 10;
@@ -123,18 +139,15 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.4);
         }
 
-        /* Show checkboxes on files when user taps "Select" */
         body.select-mode-active .card-file .square-checkbox {
             display: flex;
         }
 
-        /* Highlight entire card when selected */
         .card.selected {
             border-color: var(--accent);
             background: rgba(251, 197, 49, 0.04);
         }
 
-        /* Checked Box State */
         .card.selected .square-checkbox {
             background: var(--accent);
             border-color: var(--accent);
@@ -247,13 +260,21 @@
 <body>
     <header>
         <div class="logo">SUDHIR<span>PRO</span></div>
-        <button id="select-mode-toggle" class="header-btn" onclick="toggleSelectionMode()">Select</button>
     </header>
 
     <main id="main-content">
         <div class="search-container">
             <input type="text" id="q" class="search-bar" placeholder="SEARCH GALLERY..." oninput="doSearch()">
         </div>
+
+        <!-- NEW VISIBLE MULTI-SELECTION SYSTEM ROW -->
+        <div id="toggle-area" class="action-toggle-container">
+            <button id="select-mode-toggle" class="multi-select-btn" onclick="toggleSelectionMode()">
+                <i data-lucide="copy-check"></i>
+                <div>SELECT MULTIPLE PHOTOS TO <span>SHARE</span></div>
+            </button>
+        </div>
+
         <div class="grid" id="gallery"></div>
     </main>
 
@@ -303,15 +324,16 @@
             isSelectionMode = !isSelectionMode;
             const btn = document.getElementById('select-mode-toggle');
             if(isSelectionMode) {
-                btn.innerText = "Cancel";
+                btn.innerHTML = '<i data-lucide="x"></i> CANCEL MULTI-SELECTION MODE';
                 btn.classList.add('active');
                 document.body.classList.add('select-mode-active');
             } else {
-                btn.innerText = "Select";
+                btn.innerHTML = '<i data-lucide="copy-check"></i> SELECT MULTIPLE PHOTOS TO <span>SHARE</span>';
                 btn.classList.remove('active');
                 document.body.classList.remove('select-mode-active');
                 clearSelections();
             }
+            if(window.lucide) lucide.createIcons();
         }
 
         function handleCardClick(item, cardItem) {
@@ -357,8 +379,17 @@
 
         function render(data = null) {
             const grid = document.getElementById('gallery');
+            const toggleArea = document.getElementById('toggle-area');
             grid.innerHTML = "";
+            
             const list = data || rawData.filter(i => i.parent === currentPath);
+
+            // Turn off Selection Mode safely when directory changes
+            if (!data && isSelectionMode) { toggleSelectionMode(); }
+
+            // Dynamic view logic: show toggle bar ONLY when files exist in current path view
+            const hasFiles = list.some(i => i.type === 'file');
+            toggleArea.style.display = hasFiles ? 'block' : 'none';
 
             list.forEach(item => {
                 const card = document.createElement('div');
@@ -371,7 +402,6 @@
                     innerHtml += '<i data-lucide="' + getIcon(item.name) + '" size="22"></i>' +
                                  '<div class="label">' + item.name + '</div>';
                 } else {
-                    // Checkbox is drawn completely inside the img-box div wrapper
                     innerHtml += '<div class="img-box">' +
                                     '<img src="' + encodeURI(item.path) + '" loading="lazy">' +
                                     '<div class="square-checkbox">' +
@@ -382,16 +412,6 @@
                 }
 
                 card.innerHTML = innerHtml;
-
-                // Long press automatically kicks off selection mode anywhere
-                let pressTimer;
-                card.addEventListener('touchstart', () => {
-                    pressTimer = setTimeout(() => {
-                        if(!isSelectionMode && item.type === 'file') toggleSelectionMode();
-                    }, 600);
-                });
-                card.addEventListener('touchend', () => clearTimeout(pressTimer));
-
                 card.onclick = () => handleCardClick(item, card);
                 grid.appendChild(card);
             });
