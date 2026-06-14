@@ -1,67 +1,33 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>SUDHIR PRO | GALLERY</title>
+<title>SUDHIR PRO GALLERY</title>
 
 <script src="https://unpkg.com/lucide@latest"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet"/>
 
 <style>
-:root {
-    --accent:#fbc531;
-    --bg:#05070a;
-    --card:#11141d;
-    --border:rgba(255,255,255,0.08);
-}
+body { margin:0; font-family:Arial; background:#05070a; color:#fff; }
 
-* {
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
-    font-family:'Plus Jakarta Sans',sans-serif;
-}
-
-body {
-    background:var(--bg);
-    color:#fff;
-    height:100vh;
-    overflow:hidden;
-    display:flex;
-    flex-direction:column;
-}
-
-/* HEADER */
 header {
     padding:15px;
+    background:#111;
     display:flex;
     justify-content:space-between;
     align-items:center;
-    border-bottom:1px solid var(--border);
-    background:#0b0e14;
 }
 
-.logo {
-    font-weight:800;
-    font-size:20px;
-}
-.logo span { color:var(--accent); }
+.logo { font-weight:800; }
+.logo span { color:#fbc531; }
 
-main {
-    flex:1;
-    overflow:auto;
-    padding-bottom:100px;
-}
-
-.search-bar {
-    width:100%;
-    padding:12px;
+.search {
+    width:calc(100% - 20px);
     margin:10px;
-    border-radius:12px;
-    border:1px solid var(--border);
-    background:#000;
-    color:#fff;
+    padding:10px;
+    border-radius:10px;
+    border:none;
 }
 
 .grid {
@@ -71,10 +37,9 @@ main {
     padding:10px;
 }
 
-/* CARD */
 .card {
-    background:var(--card);
-    border:1px solid var(--border);
+    background:#11141d;
+    border:1px solid rgba(255,255,255,0.08);
     border-radius:12px;
     padding:8px;
     text-align:center;
@@ -82,17 +47,13 @@ main {
     transition:0.2s;
 }
 
-.card:active {
-    transform:scale(0.96);
-}
+.card:active { transform:scale(0.96); }
 
 .card.selected {
-    border:2px solid var(--accent);
+    border:2px solid #fbc531;
     background:rgba(251,197,49,0.08);
-    transform:scale(0.97);
 }
 
-/* SELECT DOT */
 .select-dot {
     position:absolute;
     top:8px;
@@ -104,18 +65,18 @@ main {
 }
 
 .card.selected .select-dot {
-    background:var(--accent);
-    border-color:var(--accent);
+    background:#fbc531;
+    border-color:#fbc531;
 }
 
-/* IMAGE */
 .img-box {
     width:100%;
     aspect-ratio:1/1;
-    overflow:hidden;
     border-radius:8px;
+    overflow:hidden;
     background:#000;
 }
+
 .img-box img {
     width:100%;
     height:100%;
@@ -130,19 +91,17 @@ main {
     text-overflow:ellipsis;
 }
 
-/* TRAY */
 .tray {
     position:fixed;
     bottom:70px;
     left:10px;
     right:10px;
-    background:var(--accent);
+    background:#fbc531;
     color:#000;
     padding:12px;
     border-radius:14px;
     display:none;
     justify-content:space-between;
-    align-items:center;
     font-weight:800;
 }
 
@@ -154,17 +113,15 @@ main {
     border-radius:10px;
 }
 
-/* NAV */
 nav {
     position:fixed;
     bottom:0;
     left:0;
     right:0;
-    background:#0b0e14;
+    background:#111;
+    padding:10px;
     display:flex;
     justify-content:space-around;
-    padding:10px;
-    border-top:1px solid var(--border);
 }
 </style>
 </head>
@@ -175,10 +132,9 @@ nav {
     <div class="logo">SUDHIR<span>PRO</span></div>
 </header>
 
-<main>
-    <input class="search-bar" id="search" placeholder="Search..." oninput="search()"/>
-    <div class="grid" id="grid"></div>
-</main>
+<input class="search" id="search" placeholder="Search..." oninput="search()"/>
+
+<div class="grid" id="grid"></div>
 
 <div class="tray" id="tray">
     <div id="count">0 selected</div>
