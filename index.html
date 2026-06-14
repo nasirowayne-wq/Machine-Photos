@@ -42,7 +42,7 @@
             justify-content: space-between;
             align-items: center;
         }
-        .logo { font-weight: 800; font-size: 22px; }
+        .logo { font-weight: 800; font-size: 22px; letter-spacing: -0.5px; }
         .logo span { color: var(--accent); }
 
         main { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 120px; }
@@ -59,10 +59,9 @@
             outline: none; 
         }
 
-        /* --- THE NEW PROMINENT IN-LINE TOGGLE BUTTON --- */
         .action-toggle-container {
             padding: 10px 15px 15px;
-            display: none; /* Controlled dynamically by JavaScript */
+            display: none;
         }
         .multi-select-btn {
             width: 100%;
@@ -90,25 +89,73 @@
         }
         .multi-select-btn.active span { color: #000; }
 
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 12px; }
+        /* --- STYLES FOR ADAPTIVE VIEWPORTS --- */
+        /* List Layout for Folders (Fits multiple folders cleanly on one screen) */
+        .grid.folder-view {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 5px 15px;
+        }
+
+        /* Standard 3-Column Grid Layout for Images */
+        .grid.photo-view {
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 8px; 
+            padding: 0 12px;
+        }
         
         .card { 
             background: var(--card); 
             border: 1px solid var(--border); 
             border-radius: 14px; 
+            transition: transform 0.2s, border-color 0.2s;
+            position: relative;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .card:active { transform: scale(0.97); }
+
+        /* Compact Horizontal Design for Folder Lists */
+        .card-folder {
+            flex-direction: row !important;
+            justify-content: flex-start !important;
+            align-items: center !important;
+            padding: 14px 16px !important;
+            min-height: auto !important;
+            gap: 14px;
+        }
+        .card-folder i { color: var(--accent); margin: 0 !important; }
+        .card-folder .label {
+            text-align: left !important;
+            margin: 0 !important;
+            font-size: 13px !important;
+            font-weight: 700 !important;
+        }
+
+        /* Grid Block Box Design for Images */
+        .card-file {
             padding: 8px; 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
             justify-content: center;
             min-height: 105px;
-            transition: transform 0.2s, border-color 0.2s;
-            position: relative;
-            user-select: none;
-            -webkit-user-select: none;
         }
-        .card:active { transform: scale(0.96); }
-        .card i { color: var(--accent); margin-bottom: 4px; }
+        .card-file .label {
+            font-size: 10px; 
+            font-weight: 700; 
+            line-height: 1.2; 
+            text-transform: uppercase;
+            color: #fff;
+            width: 100%;
+            text-align: center;
+            margin-top: 6px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
 
         .img-box { 
             width: 100%; 
@@ -121,7 +168,7 @@
         }
         .img-box img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* SQUARE CHECKBOX DESIGN */
+        /* SQUARE CHECKBOX FOR PHOTOS */
         .square-checkbox {
             position: absolute;
             bottom: 6px;
@@ -154,20 +201,6 @@
         }
         .card.selected .square-checkbox i {
             display: block !important;
-        }
-        
-        .label { 
-            font-size: 10px; 
-            font-weight: 700; 
-            line-height: 1.2; 
-            text-transform: uppercase;
-            color: #fff;
-            width: 100%;
-            text-align: center;
-            margin-top: 6px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
         }
 
         /* Floating dynamic share tray */
@@ -204,7 +237,7 @@
             gap: 8px;
         }
 
-        /* Overlay Lightbox Container */
+        /* Lightbox Layout Overlays */
         .overlay { 
             position: fixed; 
             inset: 0; 
@@ -264,10 +297,9 @@
 
     <main id="main-content">
         <div class="search-container">
-            <input type="text" id="q" class="search-bar" placeholder="SEARCH GALLERY..." oninput="doSearch()">
+            <input type="text" id="q" class="search-bar" placeholder="SEARCH MACHINE DATA..." oninput="doSearch()">
         </div>
 
-        <!-- NEW VISIBLE MULTI-SELECTION SYSTEM ROW -->
         <div id="toggle-area" class="action-toggle-container">
             <button id="select-mode-toggle" class="multi-select-btn" onclick="toggleSelectionMode()">
                 <i data-lucide="copy-check"></i>
@@ -384,12 +416,19 @@
             
             const list = data || rawData.filter(i => i.parent === currentPath);
 
-            // Turn off Selection Mode safely when directory changes
             if (!data && isSelectionMode) { toggleSelectionMode(); }
 
-            // Dynamic view logic: show toggle bar ONLY when files exist in current path view
             const hasFiles = list.some(i => i.type === 'file');
-            toggleArea.style.display = hasFiles ? 'block' : 'none';
+            const hasFolders = list.some(i => i.type === 'folder');
+
+            // Apply custom adaptive CSS class based on the type of contents
+            if (hasFolders) {
+                grid.className = "grid folder-view";
+                toggleArea.style.display = 'none'; // Keep cleanly hidden for folders
+            } else {
+                grid.className = "grid photo-view";
+                toggleArea.style.display = hasFiles ? 'block' : 'none';
+            }
 
             list.forEach(item => {
                 const card = document.createElement('div');
@@ -399,7 +438,7 @@
                 let innerHtml = '';
 
                 if(item.type === 'folder') {
-                    innerHtml += '<i data-lucide="' + getIcon(item.name) + '" size="22"></i>' +
+                    innerHtml += '<i data-lucide="' + getIcon(item.name) + '" size="20"></i>' +
                                  '<div class="label">' + item.name + '</div>';
                 } else {
                     innerHtml += '<div class="img-box">' +
