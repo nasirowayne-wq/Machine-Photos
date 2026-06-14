@@ -89,7 +89,7 @@
         }
         .multi-select-btn.active span { color: #000; }
 
-        /* --- STYLES FOR ADAPTIVE VIEWPORTS --- */
+        /* --- ADAPTIVE ARCHITECTURE FOR GRID INTERFACES --- */
         /* List Layout for Folders (Fits multiple folders cleanly on one screen) */
         .grid.folder-view {
             display: flex;
@@ -98,12 +98,12 @@
             padding: 5px 15px;
         }
 
-        /* Standard 3-Column Grid Layout for Images */
+        /* UPDATED: 2-Column Grid Layout for Images */
         .grid.photo-view {
             display: grid; 
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 8px; 
-            padding: 0 12px;
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 10px; 
+            padding: 0 15px;
         }
         
         .card { 
@@ -136,22 +136,22 @@
 
         /* Grid Block Box Design for Images */
         .card-file {
-            padding: 8px; 
+            padding: 10px; 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
             justify-content: center;
-            min-height: 105px;
+            min-height: 130px;
         }
         .card-file .label {
-            font-size: 10px; 
+            font-size: 11px; 
             font-weight: 700; 
-            line-height: 1.2; 
+            line-height: 1.3; 
             text-transform: uppercase;
             color: #fff;
             width: 100%;
             text-align: center;
-            margin-top: 6px;
+            margin-top: 8px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -160,7 +160,7 @@
         .img-box { 
             width: 100%; 
             aspect-ratio: 1/1; 
-            border-radius: 8px; 
+            border-radius: 10px; 
             overflow: hidden; 
             background: #000; 
             border: 1px solid var(--border);
@@ -171,19 +171,19 @@
         /* SQUARE CHECKBOX FOR PHOTOS */
         .square-checkbox {
             position: absolute;
-            bottom: 6px;
-            right: 6px;
-            width: 18px;
-            height: 18px;
-            border-radius: 4px;
-            border: 2px solid rgba(255, 255, 255, 0.6);
+            bottom: 8px;
+            right: 8px;
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            border: 2px solid rgba(255, 255, 255, 0.7);
             background: rgba(0, 0, 0, 0.6);
             display: none; 
             align-items: center;
             justify-content: center;
             z-index: 10;
             transition: all 0.15s ease;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
         }
 
         body.select-mode-active .card-file .square-checkbox {
@@ -421,12 +421,11 @@
             const hasFiles = list.some(i => i.type === 'file');
             const hasFolders = list.some(i => i.type === 'folder');
 
-            // Apply custom adaptive CSS class based on the type of contents
             if (hasFolders) {
                 grid.className = "grid folder-view";
-                toggleArea.style.display = 'none'; // Keep cleanly hidden for folders
+                toggleArea.style.display = 'none'; 
             } else {
-                grid.className = "grid photo-view";
+                grid.className = "grid photo-view"; // Automatically shifts down into the updated 2-column rule layer
                 toggleArea.style.display = hasFiles ? 'block' : 'none';
             }
 
@@ -444,7 +443,7 @@
                     innerHtml += '<div class="img-box">' +
                                     '<img src="' + encodeURI(item.path) + '" loading="lazy">' +
                                     '<div class="square-checkbox">' +
-                                        '<i data-lucide="check" size="12" style="color:#000;margin:0;display:none;"></i>' +
+                                        '<i data-lucide="check" size="14" style="color:#000;margin:0;display:none;"></i>' +
                                     '</div>' +
                                  '</div>' +
                                  '<div class="label">' + item.name + '</div>';
@@ -455,6 +454,14 @@
                 grid.appendChild(card);
             });
             if(window.lucide) lucide.createIcons();
+        }
+
+        // Search engine filter logic mapping
+        function doSearch() {
+            const val = document.getElementById('q').value.toLowerCase();
+            if(val.length > 1) {
+                render(rawData.filter(i => i.name.toLowerCase().includes(val) && i.type === 'file'));
+            } else { render(); }
         }
 
         function openLB(src, name) {
@@ -510,13 +517,6 @@
             } catch (err) {
                 console.error("Sharing failed: ", err);
             }
-        }
-
-        function doSearch() {
-            const val = document.getElementById('q').value.toLowerCase();
-            if(val.length > 1) {
-                render(rawData.filter(i => i.name.toLowerCase().includes(val) && i.type === 'file'));
-            } else { render(); }
         }
 
         function goHome() { currentPath = "images"; render(); }
