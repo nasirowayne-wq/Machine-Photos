@@ -208,8 +208,20 @@
         @media (min-width: 768px) {
             .grid.folder-view { grid-template-columns: repeat(4, 1fr) !important; gap: 16px !important; }
             .grid.photo-view { grid-template-columns: repeat(6, 1fr) !important; gap: 14px !important; }
-            .nav-controls { max-width: 420px; }
-            .search-container { max-width: 560px; }
+            #main-content { max-width: 900px; margin: 0 auto; width: 100%; }
+            .search-container { max-width: 560px; margin: 0 auto; }
+            .breadcrumb-wrap { max-width: 900px; margin: 0 auto; }
+            .nav-controls { max-width: 420px; margin: 0 auto; }
+            .action-toggle-container { max-width: 560px; margin: 0 auto; }
+            .selection-tray { left: 50%; right: auto; transform: translateX(-50%); width: calc(100% - 30px); max-width: 860px; }
+        }
+
+        @media (min-width: 1200px) {
+            .grid.folder-view { grid-template-columns: repeat(5, 1fr) !important; gap: 18px !important; }
+            .grid.photo-view { grid-template-columns: repeat(8, 1fr) !important; gap: 16px !important; }
+            #main-content, .breadcrumb-wrap { max-width: 1180px; }
+            .search-container, .nav-controls, .action-toggle-container { max-width: 680px; }
+            .selection-tray { max-width: 1100px; }
         }
 
         .card {
