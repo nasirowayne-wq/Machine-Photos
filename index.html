@@ -84,6 +84,27 @@
         main { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: calc(var(--safe-bottom) + 30px); }
 
         .search-container { padding: 16px 15px 8px 15px; }
+        .quick-tools-row { display: flex; gap: 8px; margin-top: 10px; }
+        .quick-tool-btn {
+            flex: 1;
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 11px;
+            padding: 9px 8px;
+            color: var(--text-dim);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            box-shadow: 0 2px 8px rgba(22,23,27,0.04);
+            transition: all 0.15s ease;
+        }
+        .quick-tool-btn i { width: 14px; height: 14px; }
+        .quick-tool-btn.active { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; border-color: transparent; }
+        .quick-tool-btn:active { transform: scale(0.97); }
         .search-bar-wrap { position: relative; }
         .search-bar-wrap i {
             position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
@@ -334,6 +355,55 @@
         }
         body.select-mode-active .card-file .square-checkbox { display: flex; }
 
+        .fav-heart-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(22, 23, 27, 0.45);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 11;
+            color: rgba(255,255,255,0.85);
+            transition: all 0.15s ease;
+        }
+        .fav-heart-btn i { width: 12px; height: 12px; }
+        .fav-heart-btn.is-fav { color: #ff5d3b; background: rgba(255,255,255,0.9); }
+        .fav-heart-btn.is-fav i { fill: #ff5d3b; }
+        body.select-mode-active .fav-heart-btn { display: none; }
+
+        body.grid-compact .grid.photo-view { grid-template-columns: repeat(4, 1fr) !important; gap: 6px !important; }
+        @media (min-width: 768px) {
+            body.grid-compact .grid.photo-view { grid-template-columns: repeat(8, 1fr) !important; }
+        }
+        @media (min-width: 1200px) {
+            body.grid-compact .grid.photo-view { grid-template-columns: repeat(10, 1fr) !important; }
+        }
+
+        .scroll-top-btn {
+            position: fixed;
+            right: 18px;
+            bottom: calc(var(--safe-bottom) + 20px);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1.5px solid var(--border);
+            background: var(--card);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(22,23,27,0.16);
+            z-index: 2000;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        .scroll-top-btn.hidden { opacity: 0; pointer-events: none; transform: translateY(10px); }
+
         .card.selected { border-color: var(--accent); background: var(--accent-dim); }
         .card.selected .square-checkbox { background: var(--accent); border-color: var(--accent); }
         .card.selected .square-checkbox i { display: block !important; }
@@ -414,7 +484,7 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            touch-action: pan-y;
+            touch-action: none;
         }
         #lb-img {
             max-width: 100%;
@@ -425,14 +495,14 @@
             will-change: transform, opacity;
         }
 
-        .lb-tap-zone { position: absolute; top: 0; bottom: 0; width: 25%; z-index: 5; }
-        .lb-tap-zone.left { left: 0; }
-        .lb-tap-zone.right { right: 0; }
+        .lb-tap-zone { position: absolute; left: 0; right: 0; height: 25%; z-index: 5; }
+        .lb-tap-zone.top { top: 0; }
+        .lb-tap-zone.bottom { bottom: 0; }
 
         .lb-arrow {
             position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
+            left: 50%;
+            transform: translateX(-50%);
             width: 38px;
             height: 38px;
             border-radius: 50%;
@@ -445,9 +515,11 @@
             color: #fff;
             transition: opacity 0.2s;
         }
-        .lb-arrow.left { left: 6px; }
-        .lb-arrow.right { right: 6px; }
+        .lb-arrow.up { top: 6px; }
+        .lb-arrow.down { bottom: 6px; }
         .lb-arrow.hidden { opacity: 0; pointer-events: none; }
+
+        .lb-hint { font-size: 10px; font-weight: 700; letter-spacing: 0.3px; color: var(--text-dim); margin-top: 6px; text-transform: uppercase; text-align: center; }
 
         .lb-counter { margin-top: 14px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; color: var(--text-dim); }
 
@@ -466,6 +538,8 @@
             box-shadow: 0 2px 8px rgba(22,23,27,0.05);
         }
         .act-btn.primary { color: var(--accent); }
+        #lb-fav-btn.is-fav { color: var(--accent); }
+        #lb-fav-btn.is-fav i { fill: var(--accent); }
     </style>
 </head>
 <body>
@@ -481,6 +555,14 @@
             <div class="search-bar-wrap">
                 <i data-lucide="search" size="16"></i>
                 <input type="text" id="q" class="search-bar" placeholder="SEARCH MACHINE DATA..." oninput="doSearch()">
+            </div>
+            <div class="quick-tools-row">
+                <button id="fav-filter-btn" class="quick-tool-btn" onclick="toggleFavoritesFilter()" title="Show favorites">
+                    <i data-lucide="heart" size="15"></i> FAVORITES
+                </button>
+                <button id="density-btn" class="quick-tool-btn" onclick="toggleGridDensity()" title="Grid density">
+                    <i data-lucide="grid-3x3" size="15"></i> COMPACT
+                </button>
             </div>
         </div>
 
@@ -501,6 +583,8 @@
         <div class="grid" id="gallery"></div>
     </main>
 
+    <button id="scroll-top-btn" class="scroll-top-btn hidden" onclick="scrollGalleryTop()"><i data-lucide="arrow-up" size="18"></i></button>
+
     <div id="selection-tray" class="selection-tray">
         <div class="tray-txt" id="tray-count">0 Items Selected</div>
         <button class="tray-btn" onclick="shareSelectedImages()">
@@ -512,17 +596,18 @@
         <div class="overlay-header">
             <button class="act-btn" onclick="closeLB()"><i data-lucide="chevron-left"></i></button>
             <div id="lb-title" style="flex:1; font-weight:800; text-align:center; font-size:14px">PHOTO VIEW</div>
-            <div style="width:42px"></div>
+            <button class="act-btn" id="lb-fav-btn" onclick="toggleFavoriteActive()"><i data-lucide="heart" size="18"></i></button>
         </div>
         <div class="scroll-area">
             <div id="lb-stage">
-                <div class="lb-tap-zone left" onclick="prevImg()"></div>
-                <div class="lb-tap-zone right" onclick="nextImg()"></div>
-                <button id="lb-arrow-left" class="lb-arrow left" onclick="prevImg()"><i data-lucide="chevron-left" size="20"></i></button>
+                <div class="lb-tap-zone top" onclick="prevImg()"></div>
+                <div class="lb-tap-zone bottom" onclick="nextImg()"></div>
+                <button id="lb-arrow-up" class="lb-arrow up" onclick="prevImg()"><i data-lucide="chevron-up" size="20"></i></button>
                 <img id="lb-img" src="">
-                <button id="lb-arrow-right" class="lb-arrow right" onclick="nextImg()"><i data-lucide="chevron-right" size="20"></i></button>
+                <button id="lb-arrow-down" class="lb-arrow down" onclick="nextImg()"><i data-lucide="chevron-down" size="20"></i></button>
             </div>
             <div class="lb-counter" id="lb-counter">1 / 1</div>
+            <div class="lb-hint" id="lb-hint">Swipe up/down to browse &middot; double-tap to zoom</div>
             <div class="action-bar">
                 <button class="act-btn primary" id="dl-btn"><i data-lucide="download"></i>SAVE</button>
                 <button class="act-btn primary" onclick="shareActiveImg()"><i data-lucide="share-2"></i>SHARE</button>
@@ -537,14 +622,76 @@
         let selectedFiles = new Set();
         let isSelectionMode = false;
         let isLightboxOpen = false;
+        let isFavoritesMode = false;
+        let isGridCompact = false;
+        let isZoomed = false;
 
         let currentGalleryItems = [];
         let currentIndex = -1;
         let touchStartX = 0;
         let touchStartY = 0;
-        let touchDeltaX = 0;
+        let touchDeltaY = 0;
         let isSwiping = false;
         let isAnimatingSlide = false;
+        let lastTapTime = 0;
+
+        // ---- Favorites (stored locally on this device only) ----
+        const FAV_KEY = 'sudhirpro_favorites';
+        let favoriteSet = new Set();
+        (function loadFavorites() {
+            try {
+                const raw = localStorage.getItem(FAV_KEY);
+                if (raw) favoriteSet = new Set(JSON.parse(raw));
+            } catch (e) {}
+        })();
+        function saveFavorites() {
+            try { localStorage.setItem(FAV_KEY, JSON.stringify([...favoriteSet])); } catch (e) {}
+        }
+        function isFavorite(path) { return favoriteSet.has(path); }
+        function toggleFavorite(path) {
+            if (favoriteSet.has(path)) favoriteSet.delete(path); else favoriteSet.add(path);
+            saveFavorites();
+        }
+        function toggleFavoritesFilter() {
+            isFavoritesMode = !isFavoritesMode;
+            document.getElementById('fav-filter-btn').classList.toggle('active', isFavoritesMode);
+            if (isFavoritesMode) {
+                document.getElementById('q').value = '';
+                render(rawData.filter(i => i.type === 'file' && isFavorite(i.path)));
+            } else {
+                render();
+            }
+        }
+        function toggleFavoriteActive() {
+            const item = currentGalleryItems[currentIndex];
+            if (!item) return;
+            toggleFavorite(item.path);
+            document.getElementById('lb-fav-btn').classList.toggle('is-fav', isFavorite(item.path));
+        }
+
+        // ---- Grid density (compact = more, smaller thumbnails per row) ----
+        function applyGridDensity() {
+            document.body.classList.toggle('grid-compact', isGridCompact);
+            const btn = document.getElementById('density-btn');
+            if (btn) {
+                btn.classList.toggle('active', isGridCompact);
+                btn.innerHTML = '<i data-lucide="grid-3x3" size="15"></i> ' + (isGridCompact ? 'COMFY' : 'COMPACT');
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+        (function loadGridDensity() {
+            try { isGridCompact = localStorage.getItem('sudhirpro_grid_density') === 'compact'; } catch (e) {}
+        })();
+        function toggleGridDensity() {
+            isGridCompact = !isGridCompact;
+            try { localStorage.setItem('sudhirpro_grid_density', isGridCompact ? 'compact' : 'comfy'); } catch (e) {}
+            applyGridDensity();
+        }
+
+        // ---- Scroll-to-top ----
+        function scrollGalleryTop() {
+            document.getElementById('main-content').scrollTo({ top: 0, behavior: 'smooth' });
+        }
 
         function getIcon(name) {
             const n = name.toLowerCase();
@@ -611,7 +758,14 @@
             }
 
             const cleanPath = decodeURIComponent(hashValue.replace('__lightbox', ''));
-            currentPath = (!cleanPath || cleanPath === "images") ? "images" : cleanPath;
+            const resolvedPath = (!cleanPath || cleanPath === "images") ? "images" : cleanPath;
+
+            if (resolvedPath !== currentPath && isFavoritesMode) {
+                isFavoritesMode = false;
+                const favBtn = document.getElementById('fav-filter-btn');
+                if (favBtn) favBtn.classList.remove('active');
+            }
+            currentPath = resolvedPath;
 
             renderBreadcrumbs();
             render();
@@ -671,7 +825,14 @@
 
             // Items belonging exactly to the current folder level -- nested subfolders
             // stay hidden behind their own folder card until the user taps into them.
-            let list = data || rawData.filter(i => i.parent === currentPath);
+            // With no explicit data, fall back to favorites (if that filter is on) or
+            // the current folder's own contents.
+            let list = data;
+            if (!list) {
+                list = isFavoritesMode
+                    ? rawData.filter(i => i.type === 'file' && isFavorite(i.path))
+                    : rawData.filter(i => i.parent === currentPath);
+            }
 
             // Folders first, then files, each alphabetically -- keeps deep trees predictable
             list = [...list].sort((a, b) => {
@@ -698,7 +859,8 @@
                 grid.className = "grid folder-view";
                 const empty = document.createElement('div');
                 empty.className = 'empty-state';
-                empty.innerHTML = '<i data-lucide="folder-open" size="34"></i><div class="t">This folder is empty</div>';
+                const msg = isFavoritesMode ? 'No favorites yet â€” tap the heart on any photo' : 'This folder is empty';
+                empty.innerHTML = '<i data-lucide="folder-open" size="34"></i><div class="t">' + msg + '</div>';
                 grid.appendChild(empty);
                 if(window.lucide) lucide.createIcons();
                 return;
@@ -720,6 +882,7 @@
                 } else {
                     innerHtml += '<div class="img-box">' +
                                     '<img src="' + encodeURI(item.path) + '" loading="lazy">' +
+                                    '<button class="fav-heart-btn' + (isFavorite(item.path) ? ' is-fav' : '') + '"><i data-lucide="heart" size="12"></i></button>' +
                                     '<div class="square-checkbox">' +
                                         '<i data-lucide="check" size="10" style="color:#000;margin:0;display:none;"></i>' +
                                     '</div>' +
@@ -728,6 +891,19 @@
                 }
 
                 card.innerHTML = innerHtml;
+
+                if (item.type === 'file') {
+                    const heartBtn = card.querySelector('.fav-heart-btn');
+                    if (heartBtn) {
+                        heartBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            toggleFavorite(item.path);
+                            heartBtn.classList.toggle('is-fav', isFavorite(item.path));
+                            if (isFavoritesMode) render(rawData.filter(f => f.type === 'file' && isFavorite(f.path)));
+                        });
+                    }
+                }
+
                 card.onclick = () => handleCardClick(item, card);
                 grid.appendChild(card);
             });
@@ -736,17 +912,45 @@
 
         function doSearch() {
             const val = document.getElementById('q').value.toLowerCase();
+            if (isFavoritesMode && val.length > 0) {
+                isFavoritesMode = false;
+                document.getElementById('fav-filter-btn').classList.remove('active');
+            }
             if(val.length > 1) {
                 render(rawData.filter(i => i.name.toLowerCase().includes(val) && i.type === 'file'));
             } else { render(); }
+        }
+
+        function resetZoom() {
+            const img = document.getElementById('lb-img');
+            img.style.transition = 'transform 0.2s ease';
+            img.style.transform = 'scale(1)';
+            img.style.transformOrigin = 'center center';
+            isZoomed = false;
+        }
+
+        function toggleZoom(clientX, clientY) {
+            const img = document.getElementById('lb-img');
+            if (!isZoomed) {
+                const rect = img.getBoundingClientRect();
+                const originX = ((clientX - rect.left) / rect.width) * 100;
+                const originY = ((clientY - rect.top) / rect.height) * 100;
+                img.style.transformOrigin = originX + '% ' + originY + '%';
+                img.style.transition = 'transform 0.25s ease';
+                img.style.transform = 'scale(2.4)';
+                isZoomed = true;
+            } else {
+                resetZoom();
+            }
         }
 
         function updateLBChrome() {
             const item = currentGalleryItems[currentIndex];
             document.getElementById('lb-title').innerText = item.name.toUpperCase();
             document.getElementById('lb-counter').innerText = (currentIndex + 1) + ' / ' + currentGalleryItems.length;
-            document.getElementById('lb-arrow-left').classList.toggle('hidden', currentIndex <= 0);
-            document.getElementById('lb-arrow-right').classList.toggle('hidden', currentIndex >= currentGalleryItems.length - 1);
+            document.getElementById('lb-arrow-up').classList.toggle('hidden', currentIndex <= 0);
+            document.getElementById('lb-arrow-down').classList.toggle('hidden', currentIndex >= currentGalleryItems.length - 1);
+            document.getElementById('lb-fav-btn').classList.toggle('is-fav', isFavorite(item.path));
         }
 
         function openLB(index) {
@@ -758,8 +962,10 @@
             const lb = document.getElementById('lightbox');
             const img = document.getElementById('lb-img');
             img.style.transition = 'none';
-            img.style.transform = 'translateX(0)';
+            img.style.transform = 'translateY(0) scale(1)';
+            img.style.transformOrigin = 'center center';
             img.style.opacity = '1';
+            isZoomed = false;
             img.src = encodeURI(currentGalleryItems[index].path);
 
             updateLBChrome();
@@ -770,12 +976,15 @@
         function slideTo(newIndex, direction) {
             if (isAnimatingSlide || newIndex < 0 || newIndex >= currentGalleryItems.length) return;
             isAnimatingSlide = true;
+            if (isZoomed) resetZoom();
 
             const img = document.getElementById('lb-img');
-            const outX = direction === 'left' ? '-60px' : '60px';
+            // 'next' means content enters from below (like scrolling a feed down);
+            // 'prev' means it enters from above.
+            const outY = direction === 'next' ? '-60px' : '60px';
 
             img.style.transition = 'transform 0.18s ease, opacity 0.18s ease';
-            img.style.transform = 'translateX(' + outX + ')';
+            img.style.transform = 'translateY(' + outY + ')';
             img.style.opacity = '0';
 
             setTimeout(() => {
@@ -783,21 +992,21 @@
                 img.src = encodeURI(currentGalleryItems[currentIndex].path);
                 updateLBChrome();
 
-                const inX = direction === 'left' ? '60px' : '-60px';
+                const inY = direction === 'next' ? '60px' : '-60px';
                 img.style.transition = 'none';
-                img.style.transform = 'translateX(' + inX + ')';
+                img.style.transform = 'translateY(' + inY + ')';
 
                 requestAnimationFrame(() => {
                     img.style.transition = 'transform 0.18s ease, opacity 0.18s ease';
-                    img.style.transform = 'translateX(0)';
+                    img.style.transform = 'translateY(0)';
                     img.style.opacity = '1';
                     setTimeout(() => { isAnimatingSlide = false; }, 190);
                 });
             }, 180);
         }
 
-        function nextImg() { slideTo(currentIndex + 1, 'left'); }
-        function prevImg() { slideTo(currentIndex - 1, 'right'); }
+        function nextImg() { slideTo(currentIndex + 1, 'next'); }
+        function prevImg() { slideTo(currentIndex - 1, 'prev'); }
 
         function closeLB() {
             if (window.location.hash.includes('__lightbox')) {
@@ -814,42 +1023,57 @@
                 isSwiping = true;
                 touchStartX = e.touches[0].clientX;
                 touchStartY = e.touches[0].clientY;
-                touchDeltaX = 0;
-                img.style.transition = 'none';
+                touchDeltaY = 0;
+                if (!isZoomed) img.style.transition = 'none';
             }, { passive: true });
 
             stage.addEventListener('touchmove', (e) => {
-                if (!isSwiping || isAnimatingSlide) return;
+                if (!isSwiping || isAnimatingSlide || isZoomed) return;
                 const dx = e.touches[0].clientX - touchStartX;
                 const dy = e.touches[0].clientY - touchStartY;
-                if (Math.abs(dy) > Math.abs(dx)) return;
-                touchDeltaX = dx;
-                img.style.transform = 'translateX(' + dx + 'px)';
-                img.style.opacity = String(1 - Math.min(Math.abs(dx) / 400, 0.4));
+                if (Math.abs(dx) > Math.abs(dy)) return; // ignore mostly-horizontal drags
+                touchDeltaY = dy;
+                img.style.transform = 'translateY(' + dy + 'px)';
+                img.style.opacity = String(1 - Math.min(Math.abs(dy) / 400, 0.4));
             }, { passive: true });
 
-            stage.addEventListener('touchend', () => {
+            stage.addEventListener('touchend', (e) => {
                 if (!isSwiping) return;
                 isSwiping = false;
-                img.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
 
+                // Double-tap to zoom: two quick taps with no drag toggles zoom in/out.
+                const now = Date.now();
+                if (Math.abs(touchDeltaY) < 8) {
+                    if (now - lastTapTime < 320) {
+                        const t = e.changedTouches[0];
+                        toggleZoom(t.clientX, t.clientY);
+                        lastTapTime = 0;
+                        touchDeltaY = 0;
+                        return;
+                    }
+                    lastTapTime = now;
+                }
+
+                if (isZoomed) { touchDeltaY = 0; return; }
+
+                img.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
                 const THRESHOLD = 55;
-                if (touchDeltaX <= -THRESHOLD && currentIndex < currentGalleryItems.length - 1) {
+                if (touchDeltaY <= -THRESHOLD && currentIndex < currentGalleryItems.length - 1) {
                     nextImg();
-                } else if (touchDeltaX >= THRESHOLD && currentIndex > 0) {
+                } else if (touchDeltaY >= THRESHOLD && currentIndex > 0) {
                     prevImg();
                 } else {
-                    img.style.transform = 'translateX(0)';
+                    img.style.transform = 'translateY(0)';
                     img.style.opacity = '1';
                 }
-                touchDeltaX = 0;
+                touchDeltaY = 0;
             });
         })();
 
         document.addEventListener('keydown', (e) => {
             if (!isLightboxOpen) return;
-            if (e.key === 'ArrowRight') nextImg();
-            if (e.key === 'ArrowLeft') prevImg();
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextImg();
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prevImg();
             if (e.key === 'Escape') closeLB();
         });
 
@@ -910,6 +1134,14 @@
                 window.location.hash = encodeURIComponent(targetPath);
             }
         }
+
+        applyGridDensity();
+
+        document.getElementById('main-content').addEventListener('scroll', () => {
+            const main = document.getElementById('main-content');
+            const btn = document.getElementById('scroll-top-btn');
+            btn.classList.toggle('hidden', main.scrollTop < 400);
+        });
 
         parseAndRouteLocation();
     </script>
