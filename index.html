@@ -83,49 +83,6 @@
 
         main { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: calc(var(--safe-bottom) + 30px); }
 
-        .search-container { padding: 16px 15px 8px 15px; }
-        .quick-tools-row { display: flex; gap: 8px; margin-top: 10px; }
-        .quick-tool-btn {
-            flex: 1;
-            background: var(--card);
-            border: 1.5px solid var(--border);
-            border-radius: 11px;
-            padding: 9px 8px;
-            color: var(--text-dim);
-            font-size: 10px;
-            font-weight: 800;
-            letter-spacing: 0.4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            box-shadow: 0 2px 8px rgba(22,23,27,0.04);
-            transition: all 0.15s ease;
-        }
-        .quick-tool-btn i { width: 14px; height: 14px; }
-        .quick-tool-btn.active { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; border-color: transparent; }
-        .quick-tool-btn:active { transform: scale(0.97); }
-        .search-bar-wrap { position: relative; }
-        .search-bar-wrap i {
-            position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-            color: var(--text-dimmer); width: 16px; height: 16px;
-        }
-        .search-bar {
-            width: 100%;
-            background: var(--card);
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius);
-            padding: 14px 14px 14px 40px;
-            color: var(--ink);
-            font-size: 14px;
-            font-weight: 600;
-            outline: none;
-            box-shadow: 0 2px 10px rgba(22,23,27,0.04);
-            transition: border-color 0.2s, background 0.2s;
-        }
-        .search-bar:focus { border-color: var(--accent); }
-        .search-bar::placeholder { color: var(--text-dim); font-weight: 500; }
-
         /* Breadcrumb trail */
         .breadcrumb-wrap {
             display: flex;
@@ -230,7 +187,6 @@
             .grid.folder-view { grid-template-columns: repeat(4, 1fr) !important; gap: 16px !important; }
             .grid.photo-view { grid-template-columns: repeat(6, 1fr) !important; gap: 14px !important; }
             #main-content { max-width: 900px; margin: 0 auto; width: 100%; }
-            .search-container { max-width: 560px; margin: 0 auto; }
             .breadcrumb-wrap { max-width: 900px; margin: 0 auto; }
             .nav-controls { max-width: 420px; margin: 0 auto; }
             .action-toggle-container { max-width: 560px; margin: 0 auto; }
@@ -241,7 +197,7 @@
             .grid.folder-view { grid-template-columns: repeat(5, 1fr) !important; gap: 18px !important; }
             .grid.photo-view { grid-template-columns: repeat(8, 1fr) !important; gap: 16px !important; }
             #main-content, .breadcrumb-wrap { max-width: 1180px; }
-            .search-container, .nav-controls, .action-toggle-container { max-width: 680px; }
+            .nav-controls, .action-toggle-container { max-width: 680px; }
             .selection-tray { max-width: 1100px; }
         }
 
@@ -377,14 +333,6 @@
         .fav-heart-btn.is-fav i { fill: #ff5d3b; }
         body.select-mode-active .fav-heart-btn { display: none; }
 
-        body.grid-compact .grid.photo-view { grid-template-columns: repeat(3, 1fr) !important; gap: 6px !important; }
-        @media (min-width: 768px) {
-            body.grid-compact .grid.photo-view { grid-template-columns: repeat(8, 1fr) !important; }
-        }
-        @media (min-width: 1200px) {
-            body.grid-compact .grid.photo-view { grid-template-columns: repeat(10, 1fr) !important; }
-        }
-
         .scroll-top-btn {
             position: fixed;
             right: 18px;
@@ -439,18 +387,28 @@
         }
         @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        .tray-txt { font-weight: 800; font-size: 13px; text-transform: uppercase; }
+        .tray-txt { font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 0.3px; }
+        .tray-actions { display: flex; gap: 8px; flex-shrink: 0; }
         .tray-btn {
             background: var(--ink);
             color: #fff;
             border: none;
-            padding: 10px 18px;
+            padding: 10px 16px;
             border-radius: 10px;
             font-size: 12px;
             font-weight: 800;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 7px;
+            box-shadow: 0 4px 10px rgba(22,23,27,0.25);
+            transition: transform 0.15s ease;
+        }
+        .tray-btn:active { transform: scale(0.95); }
+        .tray-btn-ghost {
+            background: rgba(255,255,255,0.18);
+            border: 1.5px solid rgba(255,255,255,0.75);
+            color: #fff;
+            box-shadow: none;
         }
 
         .overlay {
@@ -523,22 +481,33 @@
 
         .lb-counter { margin-top: 14px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; color: var(--text-dim); }
 
-        .action-bar { display: flex; gap: 10px; margin-top: 25px; }
+        .action-bar { display: flex; gap: 12px; margin-top: 25px; width: 100%; max-width: 320px; }
         .act-btn {
             background: var(--card);
             border: 1.5px solid var(--border);
-            padding: 12px 20px;
-            border-radius: 13px;
-            color: var(--text-dim);
-            font-size: 11px;
+            padding: 13px 18px;
+            border-radius: 14px;
+            color: var(--ink);
+            font-size: 12px;
             font-weight: 800;
+            letter-spacing: 0.3px;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
-            box-shadow: 0 2px 8px rgba(22,23,27,0.05);
+            box-shadow: 0 3px 10px rgba(22,23,27,0.08);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
-        .act-btn.primary { color: var(--accent); }
-        #lb-fav-btn.is-fav { color: var(--accent); }
+        .act-btn:active { transform: scale(0.96); }
+        .action-bar .act-btn { flex: 1; }
+        .act-btn.primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 6px 18px rgba(255, 93, 59, 0.38);
+        }
+        .act-btn.primary i { color: #fff; }
+        #lb-fav-btn.is-fav { color: var(--accent); border-color: var(--border-strong); }
         #lb-fav-btn.is-fav i { fill: var(--accent); }
     </style>
 </head>
@@ -572,9 +541,14 @@
 
     <div id="selection-tray" class="selection-tray">
         <div class="tray-txt" id="tray-count">0 Items Selected</div>
-        <button class="tray-btn" onclick="shareSelectedImages()">
-            <i data-lucide="share-2" size="16"></i>SHARE ALL
-        </button>
+        <div class="tray-actions">
+            <button class="tray-btn tray-btn-ghost" onclick="downloadSelectedImages()">
+                <i data-lucide="download" size="16"></i>SAVE
+            </button>
+            <button class="tray-btn" onclick="shareSelectedImages()">
+                <i data-lucide="share-2" size="16"></i>SHARE
+            </button>
+        </div>
     </div>
 
     <div id="lightbox" class="overlay">
@@ -607,8 +581,6 @@
         let selectedFiles = new Set();
         let isSelectionMode = false;
         let isLightboxOpen = false;
-        let isFavoritesMode = false;
-        let isGridCompact = false;
         let isZoomed = false;
 
         let currentGalleryItems = [];
@@ -642,25 +614,6 @@
             if (!item) return;
             toggleFavorite(item.path);
             document.getElementById('lb-fav-btn').classList.toggle('is-fav', isFavorite(item.path));
-        }
-
-        // ---- Grid density (compact = more, smaller thumbnails per row) ----
-        function applyGridDensity() {
-            document.body.classList.toggle('grid-compact', isGridCompact);
-            const btn = document.getElementById('density-btn');
-            if (btn) {
-                btn.classList.toggle('active', isGridCompact);
-                btn.innerHTML = '<i data-lucide="grid-3x3" size="15"></i> ' + (isGridCompact ? 'COMFY' : 'COMPACT');
-                if (window.lucide) lucide.createIcons();
-            }
-        }
-        (function loadGridDensity() {
-            try { isGridCompact = localStorage.getItem('sudhirpro_grid_density') === 'compact'; } catch (e) {}
-        })();
-        function toggleGridDensity() {
-            isGridCompact = !isGridCompact;
-            try { localStorage.setItem('sudhirpro_grid_density', isGridCompact ? 'compact' : 'comfy'); } catch (e) {}
-            applyGridDensity();
         }
 
         // ---- Scroll-to-top ----
@@ -735,11 +688,6 @@
             const cleanPath = decodeURIComponent(hashValue.replace('__lightbox', ''));
             const resolvedPath = (!cleanPath || cleanPath === "images") ? "images" : cleanPath;
 
-            if (resolvedPath !== currentPath && isFavoritesMode) {
-                isFavoritesMode = false;
-                const favBtn = document.getElementById('fav-filter-btn');
-                if (favBtn) favBtn.classList.remove('active');
-            }
             currentPath = resolvedPath;
 
             renderBreadcrumbs();
@@ -800,13 +748,9 @@
 
             // Items belonging exactly to the current folder level -- nested subfolders
             // stay hidden behind their own folder card until the user taps into them.
-            // With no explicit data, fall back to favorites (if that filter is on) or
-            // the current folder's own contents.
             let list = data;
             if (!list) {
-                list = isFavoritesMode
-                    ? rawData.filter(i => i.type === 'file' && isFavorite(i.path))
-                    : rawData.filter(i => i.parent === currentPath);
+                list = rawData.filter(i => i.parent === currentPath);
             }
 
             // Folders first, then files, each alphabetically -- keeps deep trees predictable
@@ -834,8 +778,7 @@
                 grid.className = "grid folder-view";
                 const empty = document.createElement('div');
                 empty.className = 'empty-state';
-                const msg = isFavoritesMode ? 'No favorites yet â€” tap the heart on any photo' : 'This folder is empty';
-                empty.innerHTML = '<i data-lucide="folder-open" size="34"></i><div class="t">' + msg + '</div>';
+                empty.innerHTML = '<i data-lucide="folder-open" size="34"></i><div class="t">This folder is empty</div>';
                 grid.appendChild(empty);
                 if(window.lucide) lucide.createIcons();
                 return;
@@ -874,7 +817,6 @@
                             e.stopPropagation();
                             toggleFavorite(item.path);
                             heartBtn.classList.toggle('is-fav', isFavorite(item.path));
-                            if (isFavoritesMode) render(rawData.filter(f => f.type === 'file' && isFavorite(f.path)));
                         });
                     }
                 }
@@ -1063,6 +1005,20 @@
             } catch (err) { console.error(err); }
         }
 
+        async function downloadSelectedImages() {
+            if (selectedFiles.size === 0) return;
+            for (const path of selectedFiles) {
+                const a = document.createElement('a');
+                a.href = encodeURI(path);
+                a.download = path.split('/').pop() || 'photo.jpg';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                // Small stagger so the browser doesn't block back-to-back downloads.
+                await new Promise(r => setTimeout(r, 250));
+            }
+        }
+
         async function shareSelectedImages() {
             if(selectedFiles.size === 0) return;
             const filesArray = [];
@@ -1098,8 +1054,6 @@
                 window.location.hash = encodeURIComponent(targetPath);
             }
         }
-
-        applyGridDensity();
 
         document.getElementById('main-content').addEventListener('scroll', () => {
             const main = document.getElementById('main-content');
