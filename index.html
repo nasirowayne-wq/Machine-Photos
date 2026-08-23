@@ -551,21 +551,6 @@
     </header>
 
     <main id="main-content">
-        <div class="search-container">
-            <div class="search-bar-wrap">
-                <i data-lucide="search" size="16"></i>
-                <input type="text" id="q" class="search-bar" placeholder="SEARCH MACHINE DATA..." oninput="doSearch()">
-            </div>
-            <div class="quick-tools-row">
-                <button id="fav-filter-btn" class="quick-tool-btn" onclick="toggleFavoritesFilter()" title="Show favorites">
-                    <i data-lucide="heart" size="15"></i> FAVORITES
-                </button>
-                <button id="density-btn" class="quick-tool-btn" onclick="toggleGridDensity()" title="Grid density">
-                    <i data-lucide="grid-3x3" size="15"></i> COMPACT
-                </button>
-            </div>
-        </div>
-
         <div class="breadcrumb-wrap" id="breadcrumbs"></div>
 
         <div class="nav-controls">
@@ -651,16 +636,6 @@
         function toggleFavorite(path) {
             if (favoriteSet.has(path)) favoriteSet.delete(path); else favoriteSet.add(path);
             saveFavorites();
-        }
-        function toggleFavoritesFilter() {
-            isFavoritesMode = !isFavoritesMode;
-            document.getElementById('fav-filter-btn').classList.toggle('active', isFavoritesMode);
-            if (isFavoritesMode) {
-                document.getElementById('q').value = '';
-                render(rawData.filter(i => i.type === 'file' && isFavorite(i.path)));
-            } else {
-                render();
-            }
         }
         function toggleFavoriteActive() {
             const item = currentGalleryItems[currentIndex];
@@ -908,17 +883,6 @@
                 grid.appendChild(card);
             });
             if(window.lucide) lucide.createIcons();
-        }
-
-        function doSearch() {
-            const val = document.getElementById('q').value.toLowerCase();
-            if (isFavoritesMode && val.length > 0) {
-                isFavoritesMode = false;
-                document.getElementById('fav-filter-btn').classList.remove('active');
-            }
-            if(val.length > 1) {
-                render(rawData.filter(i => i.name.toLowerCase().includes(val) && i.type === 'file'));
-            } else { render(); }
         }
 
         function resetZoom() {
